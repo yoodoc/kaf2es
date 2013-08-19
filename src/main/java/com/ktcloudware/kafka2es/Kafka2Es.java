@@ -37,7 +37,9 @@ public class Kafka2Es {
     private static final String OPTION_ENABLE_ES_INSERT = "enable";
     private static final String OPTION_ES_ADDRESS = "elasticsearch";
     private static final String OPTION_ES_CLUSTER_NAME = "clustername";
-    
+    /*
+     * default broker zookeeper url 14.63.199.135
+     */
     public static void main(String[] args) throws ParseException {
 	Map<String, String> argMap = parseCmdOptions(args);
 	if (argMap == null || argMap.isEmpty())

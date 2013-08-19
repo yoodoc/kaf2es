@@ -4,9 +4,6 @@
 
 package com.ktcloudware.kafka2es.kafkastream;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.util.List;
 import java.util.Properties;
 
 import org.elasticsearch.ElasticSearchException;
@@ -19,16 +16,14 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
-import com.google.common.net.InetAddresses;
-
 public class KafkaStreamJobImplES implements KafkaStreamJob {
     private Client client;
     private String esAddress;
     private String clusterName;
     private Properties properties;
-    private BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
+    //private BulkRequestBuilder bulkRequestBuilder;
     private int insertingDataCount = 0;
-    private static final int INSERTING_SIZE = 100000;
+    private static final int INSERTING_SIZE = 0;
     private static final String PROPERTY_INDEX_NAME = "indexName";
     private static final String PROPERTY_TYPE_NAME = "typeName";
 
@@ -79,17 +74,18 @@ public class KafkaStreamJobImplES implements KafkaStreamJob {
     public KafkaStreamJobResult excute(String data, Properties properties) {
 	String indexName = (String) properties.get(PROPERTY_INDEX_NAME);
 	String typeName = (String) properties.get(PROPERTY_TYPE_NAME);
+	BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
 	prefareInsert(bulkRequestBuilder, indexName, typeName, data);
 	insertingDataCount++;
-
-	if (insertingDataCount > INSERTING_SIZE) {
+	
+	//if (insertingDataCount > INSERTING_SIZE) {
 	    //insert data To ElasticSearch
 	    insert(bulkRequestBuilder);
 	    
 	    //refresh bulkRequestBuilder & count
-	    bulkRequestBuilder = client.prepareBulk();
-	    insertingDataCount = 0;
-	}
+	   // bulkRequestBuilder = client.prepareBulk();
+	  //  insertingDataCount = 0;
+	//}
 	KafkaStreamJobResult jobResult = new KafkaStreamJobResult();
 
 	return jobResult;
@@ -117,8 +113,10 @@ public class KafkaStreamJobImplES implements KafkaStreamJob {
 	TransportClient transportClient = new TransportClient(settings);
 	for(String address: esAddress){
 	    String[] ipAndPort = address.split(":");
-	    if(ipAndPort.length == 2){
-		port = Integer.getInteger(ipAndPort[1]);
+	    System.out.println(ipAndPort[0]);
+	    System.out.println(ipAndPort[1]);
+	    if (ipAndPort.length == 2) {
+		port = Integer.valueOf(ipAndPort[1]);
 		this.client = transportClient
 			.addTransportAddress(new InetSocketTransportAddress(ipAndPort[0],port));
 	    } else {
@@ -129,6 +127,7 @@ public class KafkaStreamJobImplES implements KafkaStreamJob {
 
     private boolean insert(BulkRequestBuilder bulkRequest) {
 	try {
+	    
 	    BulkResponse bulkResponse = bulkRequest.execute().actionGet();
 	    if (bulkResponse.hasFailures()) {
 		System.out.println("bulk insert fail: "
