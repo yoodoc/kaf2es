@@ -12,6 +12,6 @@ public interface KafkaStreamJob {
     
     public KafkaStreamJobResult excute(String data, Properties properties);
     
-    public void addProperties(Properties properties);
-    
+    public void shutdown();
+  
 }

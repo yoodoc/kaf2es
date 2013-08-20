@@ -20,10 +20,10 @@ public class KafkaStreamJobImplStdout implements KafkaStreamJob {
 	return null;
     }
 
-    @Override
-    public void addProperties(Properties properties) {
-	// TODO Auto-generated method stub
-	
-    }
+	@Override
+	public void shutdown() {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

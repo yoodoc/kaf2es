@@ -37,6 +37,12 @@ public class Kafka2Es {
     private static final String OPTION_ENABLE_ES_INSERT = "enable";
     private static final String OPTION_ES_ADDRESS = "elasticsearch";
     private static final String OPTION_ES_CLUSTER_NAME = "clustername";
+    private static final String OPTION_ES_INDEX_NAME = "indexname";
+	private static final String OPTION_ES_TYPE_NAME = "typename";
+	private static final String OPTION_ES_ROUTINGKEY= "routingkey";
+	private static final String OPTION_ES_BULKSIZE = "bulksize";
+	private static final String OPTION_ES_BULK_INTERVAL_SEC = "bulkinterval";
+	
     /*
      * default broker zookeeper url 14.63.199.135
      */
@@ -48,13 +54,18 @@ public class Kafka2Es {
 	String groupId = argMap.get(OPTION_GROUP);
 	String topic = argMap.get(OPTION_TOPIC);
 	boolean enableES = Boolean.parseBoolean(argMap.get(OPTION_ENABLE_ES_INSERT));
-	String esAddress = "";
-	String clusterName = "";
+	String esAddress = argMap.get(OPTION_ES_ADDRESS);
+	String clusterName = argMap.get(OPTION_ES_CLUSTER_NAME);
+	String indexName = argMap.get(OPTION_ES_INDEX_NAME);
+	String typeName = argMap.get(OPTION_ES_TYPE_NAME);
+	String routingKey = argMap.get(OPTION_ES_ROUTINGKEY);
+	int esBulkSize = Integer.valueOf(argMap.get(OPTION_ES_BULKSIZE));
+	int esBulkMaxInterval = Integer.valueOf(argMap.get(OPTION_ES_BULK_INTERVAL_SEC));
 	KafkaStreamJob job = null ;
 	
 	if(enableES) {
 	    try {
-		job = new KafkaStreamJobImplES(esAddress, clusterName);
+		job = new KafkaStreamJobImplES(esAddress, clusterName, indexName, typeName, routingKey, esBulkSize, esBulkMaxInterval);
 	    } catch (Exception e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
@@ -96,14 +107,27 @@ public class Kafka2Es {
 	String topic = cmd.getOptionValue(OPTION_TOPIC);
 	String esAddress = cmd.getOptionValue(OPTION_ES_ADDRESS);
 	String esClusterName = cmd.getOptionValue(OPTION_ES_CLUSTER_NAME);
-
+	String esIndexName = cmd.getOptionValue(OPTION_ES_INDEX_NAME);
+	String esTypeName = cmd.getOptionValue(OPTION_ES_TYPE_NAME);
+	String esRoutingKeyName = cmd.getOptionValue(OPTION_ES_ROUTINGKEY);
+	String esBulkSize = cmd.getOptionValue(OPTION_ES_BULKSIZE);
+	String esBulkMaxIntervalSec = cmd.getOptionValue(OPTION_ES_BULK_INTERVAL_SEC);
+	
 	/* not implemented */
 	String fetchSize = cmd.getOptionValue("fetchSize");
 	String bulkInsertSize = cmd.getOptionValue("bulkSize");
-	
+
 	map.put(OPTION_ZOOKEEPER, zkAddress);
 	map.put(OPTION_GROUP, groupId);
 	map.put(OPTION_TOPIC, topic);
+	map.put(OPTION_ES_ADDRESS, esAddress);
+	map.put(OPTION_ES_CLUSTER_NAME, esClusterName);
+	map.put(OPTION_ES_INDEX_NAME, esIndexName);
+	map.put(OPTION_ES_TYPE_NAME, esTypeName);
+	map.put(OPTION_ES_ROUTINGKEY, esRoutingKeyName);
+	map.put(OPTION_ES_BULKSIZE, esBulkSize);
+	map.put(OPTION_ES_BULK_INTERVAL_SEC, esBulkMaxIntervalSec);
+	
 	if(cmd.hasOption(OPTION_ENABLE_ES_INSERT) && esAddress != null && esClusterName != null) {
 	    map.put(OPTION_ENABLE_ES_INSERT, "true");
 	    map.put(OPTION_ES_ADDRESS, esAddress);
@@ -150,13 +174,62 @@ public class Kafka2Es {
 		.withDescription("enable inserting data to elasticsearch")
 		.create(OPTION_ES_CLUSTER_NAME);
 	@SuppressWarnings("static-access")
+	Option esIndex = OptionBuilder
+		.withArgName("index of es data")
+		.hasArg() 
+		.withDescription(
+				"index of es data")
+		.create(OPTION_FETCH_SIZE);
+	@SuppressWarnings("static-access")
+	Option esType = OptionBuilder
+		.withArgName("type of es data")
+		.hasArg()
+		.withDescription(
+				"type of es data")
+		.create(OPTION_FETCH_SIZE);
+	@SuppressWarnings("static-access")
 	Option fetchSize = OptionBuilder
 		.withArgName("urls")
 		.hasArg()
 		.withDescription(
 			"The amount of data to fetch in a single request. (default: 1048576)")
 		.create(OPTION_FETCH_SIZE);
-
+	@SuppressWarnings("static-access")
+	Option fetchSize = OptionBuilder
+		.withArgName("urls")
+		.hasArg()
+		.withDescription(
+			"The amount of data to fetch in a single request. (default: 1048576)")
+		.create(OPTION_FETCH_SIZE);
+	@SuppressWarnings("static-access")
+	Option fetchSize = OptionBuilder
+		.withArgName("urls")
+		.hasArg()
+		.withDescription(
+			"The amount of data to fetch in a single request. (default: 1048576)")
+		.create(OPTION_FETCH_SIZE);
+	@SuppressWarnings("static-access")
+	Option fetchSize = OptionBuilder
+		.withArgName("urls")
+		.hasArg()
+		.withDescription(
+			"The amount of data to fetch in a single request. (default: 1048576)")
+		.create(OPTION_FETCH_SIZE);
+	@SuppressWarnings("static-access")
+	Option fetchSize = OptionBuilder
+		.withArgName("urls")
+		.hasArg()
+		.withDescription(
+			"The amount of data to fetch in a single request. (default: 1048576)")
+		.create(OPTION_FETCH_SIZE);
+	@SuppressWarnings("static-access")
+	Option fetchSize = OptionBuilder
+		.withArgName("urls")
+		.hasArg()
+		.withDescription(
+			"The amount of data to fetch in a single request. (default: 1048576)")
+		.create(OPTION_FETCH_SIZE);
+	
 	Options options = new Options();
 	options.addOption(listener);
 	options.addOption(fetchSize);

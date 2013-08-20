@@ -31,6 +31,8 @@ public class KafkaStreamHandler implements Runnable {
         	}
 	}catch (Exception e) {
 	    e.printStackTrace();
+	} finally {
+		this.worker.shutdown();
 	}
     }
 }
