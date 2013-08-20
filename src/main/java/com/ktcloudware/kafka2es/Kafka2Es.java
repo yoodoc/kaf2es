@@ -7,6 +7,7 @@ package com.ktcloudware.kafka2es;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -47,6 +48,7 @@ public class Kafka2Es {
 	 * default broker zookeeper url 14.63.199.135
 	 */
 	public static void main(String[] args) throws ParseException {
+		//read options 
 		Map<String, String> argMap = parseCmdOptions(args);
 		if (argMap == null || argMap.isEmpty())
 			return;
@@ -65,6 +67,9 @@ public class Kafka2Es {
 				.get(OPTION_ES_BULK_INTERVAL_SEC));
 		KafkaStreamJob job = null;
 
+		//check requeired options
+		
+		//create job instance for data handling
 		if (enableES) {
 			try {
 				job = new KafkaStreamJobImplES(esAddress, clusterName,
@@ -78,6 +83,7 @@ public class Kafka2Es {
 			job = new KafkaStreamJobImplStdout();
 		}
 
+		//create kafka consumer group & make consumer stream 
 		KafkaGroupedConsumer consumerGroup = new KafkaGroupedConsumer(
 				zooKeeper, groupId, 1);
 		List<KafkaStream<byte[], byte[]>> streams = consumerGroup
@@ -122,8 +128,7 @@ public class Kafka2Es {
 
 		/* not implemented */
 		String fetchSize = cmd.getOptionValue("fetchSize");
-		String bulkInsertSize = cmd.getOptionValue("bulkSize");
-
+		
 		map.put(OPTION_ZOOKEEPER, zkAddress);
 		map.put(OPTION_GROUP, groupId);
 		map.put(OPTION_TOPIC, topic);
@@ -151,6 +156,11 @@ public class Kafka2Es {
 			map.put(OPTION_ENABLE_ES_INSERT, "false");
 		}
 
+		System.out.println("paring cli options");
+		for(Entry<String, String> entry: map.entrySet()){
+			System.out.println(entry.getKey() + "=" + entry.getValue());
+		}
+		
 		return map;
 	}
 
@@ -228,6 +238,7 @@ public class Kafka2Es {
 		options.addOption(esClusterName);
 		options.addOption(esIndex);
 		options.addOption(esType);
+		options.addOption(esRoutingKey);
 		options.addOption(esBulkSize);
 		options.addOption(esBulkMaxIntervalSec);
 
