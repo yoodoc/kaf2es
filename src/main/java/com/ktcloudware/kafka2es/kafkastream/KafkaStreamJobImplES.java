@@ -5,6 +5,8 @@
 package com.ktcloudware.kafka2es.kafkastream;
 
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.elasticsearch.ElasticSearchException;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -25,9 +27,10 @@ public class KafkaStreamJobImplES implements KafkaStreamJob {
 	private String typeName;
 	private String indexName;
 	private String routingKeyName;
-	private int maxReqeustIntervalSec = 1;
+	private int maxReqeustIntervalSec = 10;
 	private int bulkRequestSize = 1;
 	private long lastSendTime;
+	private Pattern routingKeyPattern; 
 	
 	/**
 	 * 
@@ -47,10 +50,11 @@ public class KafkaStreamJobImplES implements KafkaStreamJob {
 		this.indexName = index;
 		this.typeName = type;
 		this.routingKeyName = routingKey;
-		this.bulkRequestSize = bulkRequestSize;
-		this.maxReqeustIntervalSec = maxRequestIntervalSec;
+		this.bulkRequestSize = (bulkRequestSize > 0) ? bulkRequestSize : 1;
+		this.maxReqeustIntervalSec = (maxRequestIntervalSec > 0) ? maxRequestIntervalSec : 10;
 		openESConnection();
 		lastSendTime = System.currentTimeMillis();
+		this.setRoutingKeyPattern(Pattern.compile("\"" + routingKeyName + "\"[\\s]*:[\\s]*\"([^\"]+)\""));
 	}
 
 	/**
@@ -79,13 +83,17 @@ public class KafkaStreamJobImplES implements KafkaStreamJob {
 	}
 
 	private void appendBulkRequestBuilder(String indexName, String typeName, String data) {
-		IndexRequestBuilder source;
+		IndexRequestBuilder source = null;
 		if(this.routingKeyName == null) {
 			source = client.prepareIndex(indexName, typeName)
 				.setSource(data);
 		} else {
-			source = client.prepareIndex(indexName, typeName)
-					.setSource(data).setRouting(this.routingKeyName);
+			Matcher matcher = getRoutingKeyPattern().matcher(data);
+			if(matcher.find()){
+				source = client.prepareIndex(indexName, typeName)
+					.setSource(data).setRouting(matcher.group(1));
+				System.out.println(matcher.group(1));
+			} 
 		}
 		this.bulkRequestBuilder.add(source);
 	}
@@ -148,6 +156,14 @@ public class KafkaStreamJobImplES implements KafkaStreamJob {
 		bulkRequestBuilder = null;
 		client.close();
 		client = null;
+	}
+
+	public Pattern getRoutingKeyPattern() {
+		return routingKeyPattern;
+	}
+
+	public void setRoutingKeyPattern(Pattern routingKeyPattern) {
+		this.routingKeyPattern = routingKeyPattern;
 	}
 
 }

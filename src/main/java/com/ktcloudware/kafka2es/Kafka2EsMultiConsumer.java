@@ -40,9 +40,9 @@ public class Kafka2EsMultiConsumer {
 
 	private static final String OPTION_ZOOKEEPER = "zookeeper";
 	private static final String OPTION_GROUP = "group";
-	private static final String OPTION_TOPIC= "topic";
+	private static final String OPTION_TOPIC = "topic";
 	private static final String OPTION_FETCH_SIZE = "fetchsize";
-	
+
 	public Kafka2EsMultiConsumer(String zkAddress, String consumerGroupId,
 			String kakfaTopicName) {
 		this.consumer = kafka.consumer.Consumer
@@ -69,18 +69,19 @@ public class Kafka2EsMultiConsumer {
 				.getMessageStreams(kafkaTopicName);
 		// now launch all the threads
 		executor = Executors.newFixedThreadPool(numOfThreads);
-		
+
 		// now create an object to consume the messages
 		int threadNumber = 0;
 		KafkaStreamJob job = new KafkaStreamJobImplStdout();
 		try {
-		for (KafkaStream<byte[], byte[]> stream : streams) {
-		    
-			executor.submit(new KafkaStreamHandler(stream, threadNumber, job));
-			threadNumber++;
-		}
+			for (KafkaStream<byte[], byte[]> stream : streams) {
+
+				executor.submit(new KafkaStreamHandler(stream, threadNumber,
+						job));
+				threadNumber++;
+			}
 		} catch (Exception e) {
-		    e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 
@@ -100,15 +101,17 @@ public class Kafka2EsMultiConsumer {
 		Map<String, String> argMap = parseCmdOptions(args);
 		if (argMap == null || argMap.isEmpty())
 			return;
-		/*String zooKeeper = "14.63.199.135";
-		String groupId = "kafka2esLocal2";
-		String topic = "yoodoc1";*/
+		/*
+		 * String zooKeeper = "14.63.199.135"; String groupId =
+		 * "kafka2esLocal2"; String topic = "yoodoc1";
+		 */
 		String zooKeeper = argMap.get(OPTION_ZOOKEEPER);
 		String groupId = argMap.get(OPTION_GROUP);
 		String topic = argMap.get(OPTION_TOPIC);
 		String fetchSize = argMap.get(OPTION_TOPIC);
-		
-		Kafka2EsMultiConsumer worker = new Kafka2EsMultiConsumer(zooKeeper, groupId, topic);
+
+		Kafka2EsMultiConsumer worker = new Kafka2EsMultiConsumer(zooKeeper,
+				groupId, topic);
 		int numOfthreads = 1;
 
 		worker.run(numOfthreads);
@@ -126,7 +129,8 @@ public class Kafka2EsMultiConsumer {
 		CommandLineParser parser = new GnuParser();
 		CommandLine cmd = parser.parse(options, args);
 
-		if (!cmd.hasOption(OPTION_ZOOKEEPER) || !cmd.hasOption(OPTION_GROUP) || !cmd.hasOption(OPTION_TOPIC)) {
+		if (!cmd.hasOption(OPTION_ZOOKEEPER) || !cmd.hasOption(OPTION_GROUP)
+				|| !cmd.hasOption(OPTION_TOPIC)) {
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("kafka2es [OPTION]...", options);
 			return null;
@@ -135,19 +139,19 @@ public class Kafka2EsMultiConsumer {
 		String zkAddress = cmd.getOptionValue(OPTION_ZOOKEEPER);
 		String groupId = cmd.getOptionValue(OPTION_GROUP);
 		String topic = cmd.getOptionValue(OPTION_TOPIC);
-		
-		//not implemented
+
+		// not implemented
 		String fetchSize = cmd.getOptionValue(OPTION_GROUP);
 		String bulkInsertSize;
-		
+
 		map.put(OPTION_ZOOKEEPER, zkAddress);
 		map.put(OPTION_GROUP, groupId);
 		map.put(OPTION_TOPIC, topic);
-		
+
 		return map;
 	}
 
-	private static Options BuildOptions(){
+	private static Options BuildOptions() {
 		@SuppressWarnings("static-access")
 		Option listener = OptionBuilder
 				.withArgName("urls")
@@ -156,25 +160,21 @@ public class Kafka2EsMultiConsumer {
 						"REQUIRED:  The connection string for the zookeeper connection in the form host:port. Multiple URLS can be given to allow fail-over.")
 				.create(OPTION_ZOOKEEPER);
 		@SuppressWarnings("static-access")
-		Option group  = OptionBuilder
-				.withArgName("group name")
-				.hasArg()
+		Option group = OptionBuilder.withArgName("group name").hasArg()
 				.withDescription("REQUIRED: The group id to consume on.")
 				.create(OPTION_GROUP);
 		@SuppressWarnings("static-access")
-		Option topic  = OptionBuilder
-				.withArgName("topic name")
-				.hasArg()
+		Option topic = OptionBuilder.withArgName("topic name").hasArg()
 				.withDescription("REQUIRED: The topic id to consume on.")
 				.create(OPTION_TOPIC);
 		@SuppressWarnings("static-access")
-		Option fetchSize  = OptionBuilder
+		Option fetchSize = OptionBuilder
 				.withArgName("urls")
 				.hasArg()
 				.withDescription(
 						"The amount of data to fetch in a single request. (default: 1048576)")
 				.create(OPTION_FETCH_SIZE);
-		
+
 		Options options = new Options();
 		options.addOption(listener);
 		options.addOption(fetchSize);

@@ -17,17 +17,10 @@ public class KafkaStreamJobImplESTest {
     }
 
     @Test
-    public void test() {
-	try {
-	    Properties properties = new Properties();
-	    properties.setProperty("indexName", "yoodoc0819");
-	    properties.setProperty("typeName", "yoodoc");
-	    KafkaStreamJobImplES streamJob = new KafkaStreamJobImplES("14.63.214.195:15930", "elasticsearch");
-	    streamJob.excute("{\"testdata\":\"data\"}", properties);
-	} catch (Exception e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	}
+    public void test() throws Exception {
+	    KafkaStreamJobImplES streamJob = new KafkaStreamJobImplES("localhost:15930", "elasticsearch", "yoodoc", "virtualmachine", "vmname", 0, 0);
+	    streamJob.excute("{\"vmname\" : \"data\"}");
+	    streamJob.shutdown();
     }
 
 }
