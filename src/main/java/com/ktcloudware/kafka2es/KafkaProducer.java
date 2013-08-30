@@ -29,7 +29,7 @@ public class KafkaProducer {
                String ip = "192.168.2." + rnd.nextInt(255); 
                String msg = runtime + ",www.example.com," + ip; 
                KeyedMessage<String, String> data = new KeyedMessage<String, String>("yoodoc0819", ip, msg);
-               producer.send(data);
+               //producer.send(data);
                try {
 		Thread.sleep(1000);
 	    } catch (InterruptedException e) {

@@ -9,7 +9,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.epfl.lamp.util.ByteArray;
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
@@ -55,7 +54,7 @@ public class KafkaStreamHandlerTest {
 	expect(mockConsumerIterator.next()).andReturn(mockMessageAndMetadata);
 	expect(mockMessageAndMetadata.message()).andReturn(data);
 	expect(mockConsumerIterator.hasNext()).andReturn(false);
-	
+
 	//create replay
 	replay(mockStreamJob);
 	replay(mockStream);
