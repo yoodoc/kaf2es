@@ -14,7 +14,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
 public class ESBulkRequsetHandler {
-    protected Client client;
+    Client client;
 
     public ESBulkRequsetHandler(String address, int port, String clusterName) {
 	open(address, port, clusterName);
@@ -32,8 +32,9 @@ public class ESBulkRequsetHandler {
 	    try {
 		IndexRequestBuilder source = client.prepareIndex(indexName,
 			typeName).setSource(datum);
+		System.out.println("!!!!");
 		if (source == null)
-		    System.out.println("!!!!!!");
+		   return false;
 		bulkRequestBuilder.add(source);
 	    } catch (Exception e) {
 		// TODO Auto-generated catch block

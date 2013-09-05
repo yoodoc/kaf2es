@@ -53,9 +53,18 @@ public class Kafka2Es {
 		String indexName = argMap.get(OPTION_ES_INDEX_NAME);
 		String typeName = argMap.get(OPTION_ES_TYPE_NAME);
 		String routingKey = argMap.get(OPTION_ES_ROUTINGKEY);
-		int esBulkSize = Integer.valueOf(argMap.get(OPTION_ES_BULKSIZE));
-		int esBulkMaxInterval = Integer.valueOf(argMap
+		
+		int esBulkSize = 0;
+		int esBulkMaxInterval = 0;
+		try {
+		    esBulkSize = Integer.valueOf(argMap.get(OPTION_ES_BULKSIZE));
+		    esBulkMaxInterval = Integer.valueOf(argMap
 				.get(OPTION_ES_BULK_INTERVAL_SEC));
+		} catch (Exception e){
+		   
+		}
+		System.out.println("!!");
+		
 		KafkaStreamJob job = null;
 
 		//check requeired options

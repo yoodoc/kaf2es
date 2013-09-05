@@ -1,18 +1,10 @@
 package com.ktcloudware.kafka2es.esclient;
 
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import junit.framework.TestCase;
 
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.ListenableActionFuture;
@@ -29,94 +21,67 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.mockito.Mockito.*;
+
 public class ESBulkRequsetHandlerTest {
-	TransportClient mockESClient;
-	BulkRequestBuilder mockBulkReqeustBuilder;
-	ESBulkRequsetHandler esBulkRequsetHandler;
-	
-	@Before
-	public void setUp() throws Exception {
-		mockESClient = createMock(TransportClient.class);
-		mockBulkReqeustBuilder = createMock(BulkRequestBuilder.class);
-		esBulkRequsetHandler = new ESBulkRequsetHandler("localhost", 9300, "elasticsearch"){
-			boolean executeBulkReqeust(BulkRequestBuilder bulkRequest) {
-				return true;
-			}
-		};
-		esBulkRequsetHandler.setClient((Client) mockESClient);
-	}
 
-	@After
-	public void tearDown() throws Exception {
-		mockESClient = null;
-		mockBulkReqeustBuilder = null;
-		esBulkRequsetHandler = null;
-	}
+    ESBulkRequsetHandler bulkRequsetHandler;
+    TransportClient mockESClient;
 
-	@Test
-	public void testConstructor()
-	{
-		//mockESClient = createMock(TransportClient.class);
-		replay(mockESClient);
-		esBulkRequsetHandler = null;
-		esBulkRequsetHandler = new ESBulkRequsetHandler("localhost", 9300, "es");
-		verify(mockESClient);
-	}
-	
-	@Test
-	public void testClose()
-	{
-		//mockESClient = createMock(TransportClient.class);
-		//adding behavior
-		mockESClient.close();
-		expectLastCall().times(1);
-		expectLastCall().asStub();
-		
-		//switch the Mock Object to replay state.
-		replay(mockESClient);
-		
-		//excute method 
-		mockESClient.close();
-		
-		//Verifying Mock Behavior
-		verify(mockESClient);
-	
-		//assert
-	}
-	
+    @Before
+    public void setUp() throws Exception {
+	bulkRequsetHandler = mock(ESBulkRequsetHandler.class);
+	mockESClient = mock(TransportClient.class);
 
-	@Test
-	public void testInsert()
-	{
-		//create mock 
-		IndexRequestBuilder mockIndexRequestBuilder = createMock(IndexRequestBuilder.class); 
-		//mockESClient = createMock(TransportClient.class);
-		
-		//adding behavior
-		expect(mockIndexRequestBuilder.setSource(anyObject(String.class))).andReturn(mockIndexRequestBuilder);
-		expect(mockBulkReqeustBuilder.add(mockIndexRequestBuilder)).andReturn(null);
-		expect(mockESClient.prepareBulk()).andReturn(mockBulkReqeustBuilder);
-		expect(mockESClient.prepareIndex("indexName", "typeName")).andReturn(mockIndexRequestBuilder);
-		
-		//switch the Mock Object to replay state.
-		replay(mockIndexRequestBuilder);
-		replay(mockBulkReqeustBuilder);
-		replay(mockESClient);
-		
-		//excute method
-		List<String> data = new ArrayList<String>();
-		data.add("data");
-		esBulkRequsetHandler.insert("indexName", "typeName", data);
-		
-		//Verifying Mock Behavior
-		verify(mockESClient);
-	
-		//assert
-	}
+    }
 
-	private String data() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Test
+    public void testInsert() {
+
+	// create mock
+	bulkRequsetHandler = new ESBulkRequsetHandler(null, 0, null) {
+	    @Override
+	    void open(String address, int port, String clusterName) {
+		this.client = mockESClient;
+	    }
+	    @Override
+	    boolean executeBulkReqeust(BulkRequestBuilder bulkRequest) {
+		return true;
+	    }
+	};
+	
+	IndexRequestBuilder mockIndexRequestBuilder = mock(IndexRequestBuilder.class);
+	BulkRequestBuilder mockBulkReqeustBuilder = mock(BulkRequestBuilder.class);
+	
+	// adding behavior
+	when(mockESClient.prepareBulk()).thenReturn(mockBulkReqeustBuilder);
+	when(mockESClient.prepareIndex(anyString(), anyString())).thenReturn(
+		mockIndexRequestBuilder);
+	when(mockIndexRequestBuilder.setSource(anyString())).thenReturn(
+		mockIndexRequestBuilder);
+	
+	/*
+	 * when(mockBulkReqeustBuilder.add(mockIndexRequestBuilder)).thenReturn(null
+	 * ); when(mockESClient.prepareBulk()).thenReturn(null);
+	 */
+	// action
+	List<String> data = new ArrayList<String>();
+	data.add("data");
+	bulkRequsetHandler.insert("indexName", "typeName", data);
+
+	// Verifying Mock Behavior
+
+	// verify(bulkRequsetHandler).executeBulkReqeust(mockBulkReqeustBuilder);
+	verify(mockESClient).prepareBulk();
+	verify(mockESClient).prepareIndex("indexName", "typeName");
+	verify(mockIndexRequestBuilder).setSource(anyString());
+	//verify(bulkRequsetHandler).insert("indexName", "typeName", data);
+
+    }
+
+    private String data() {
+	// TODO Auto-generated method stub
+	return null;
+    }
 
 }

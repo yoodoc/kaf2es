@@ -27,6 +27,7 @@ public class KafkaGroupedConsumer {
 	}
 	
 	void connect(String zk, String groupId) {
+	    System.out.println("zk " + zk);
 		ConsumerConfig consumerConfig = createConsumerConfig(zk, groupId);
 		try {
 			this.kakfaConnector = kafka.consumer.Consumer
@@ -53,11 +54,11 @@ public class KafkaGroupedConsumer {
 		kakfaConnector = null;
 	}
 
-	private static ConsumerConfig createConsumerConfig(String a_zookeeper, String groupId) {
+	private static ConsumerConfig createConsumerConfig(String zookeeper, String groupId) {
 		Properties props = new Properties();
-		props.put("zookeeper.connect", a_zookeeper);
+		props.put("zookeeper.connect", zookeeper);
 		props.put("group.id", groupId);
-		props.put("zookeeper.session.timeout.ms", "400");
+		props.put("zookeeper.session.timeout.ms", "3000");
 		props.put("zookeeper.sync.time.ms", "200");
 		props.put("auto.commit.interval.ms", "1000");
 		props.put("fetch.size", "500000");
