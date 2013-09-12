@@ -36,6 +36,12 @@ public class ESBulkRequsetHandlerTest {
     }
 
     @Test
+    public void testInsertLocal() {
+	ESBulkRequsetHandler es = new ESBulkRequsetHandler("14.63.226.175", 9300, "cdp_dev_qa");
+	es.insert("yoodoc", "test", "data");
+    }
+    
+    @Test
     public void testInsert() {
 
 	// create mock
